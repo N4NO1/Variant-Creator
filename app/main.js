@@ -8,11 +8,12 @@ var csvWriter = csvWriteStream()
 
 const filePath = process.argv[2]
 
+function readCsv(filePath) {
 const stream = fs.createReadStream(filePath)
     .pipe(csv({ mapHeaders: ({ header, index }) => header.toLowerCase().trim() }))
-    .on("headers", async (headers) => {
+    .on("headers", (headers) => {
         stream.pause()
-        var exists = await checkHeaders(headers)
+        var exists = checkHeaders(headers)
         if ( exists === false) {
             console.error("header 'name' is missing but required")
             stream.end()
@@ -42,8 +43,9 @@ const stream = fs.createReadStream(filePath)
         console.log("Done")
         csvWriter.end()
     })
+}
 
-async function checkHeaders(headers = []) {
+function checkHeaders(headers = []) {
     var requiredHeadersExist = 0
 
     requiredHeadersExist += (headers.includes("name") === true ? 0 : 1)
@@ -57,26 +59,26 @@ async function checkHeaders(headers = []) {
 
 }
 
-async function control(column) {
+function control(column) {
 
     var start = new Date().getTime()
 
-    const columnObject = await createObject(column)
+    const columnObject = createObject(column)
 
 
-    const variations = await generateVariants(columnObject)
+    const variations = generateVariants(columnObject)
 
     var end = new Date().getTime()
 
     console.log(`Created `, `Time: ${end-start}ms`)
     
-    const written = await writeVariants(variations)
+    const written = writeVariants(variations)
 
 
     return
 }
 
-async function createObject(columnData) {
+function createObject(columnData) {
 
     var variable = {
         name: columnData.name,
@@ -112,7 +114,7 @@ async function createObject(columnData) {
     return variable
 }
 
-async function generateVariants(variableObject = {}) {
+function generateVariants(variableObject = {}) {
     var variantArray=[]
 
     var lastStepCount = variableObject.possibilities
@@ -127,14 +129,14 @@ async function generateVariants(variableObject = {}) {
         }
     }
 
-    variableObject.attributes.forEach(async index => {
+    variableObject.attributes.forEach(index => {
         lastStepCount /= index.values.length
-        variantArray = await handleAttribute(index, lastStepCount, variableObject, variantArray, (lastStepCount === 1 ? "" :variableObject.splitter))
+        variantArray = handleAttribute(index, lastStepCount, variableObject, variantArray, (lastStepCount === 1 ? "" :variableObject.splitter))
     })
     return variantArray
 }
 
-async function handleAttribute(attributeObject, perStep, variableObject, variants, split) {
+function handleAttribute(attributeObject, perStep, variableObject, variants, split) {
     var i = 0
     var value = 0
 
@@ -153,7 +155,7 @@ async function handleAttribute(attributeObject, perStep, variableObject, variant
     return variants
 }
 
-async function writeVariants(variants = []) {
+function writeVariants(variants = []) {
     variants.forEach(variant =>{
         csvWriter.write(variant)
     })
