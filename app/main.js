@@ -5,6 +5,7 @@ const csvWriteStream = require('csv-write-stream')
 const csvParser = require("csv-parser")
 var csvWriter = csvWriteStream()
 
+
 const filePath = process.argv[2]
 
 const stream = fs.createReadStream(filePath)
@@ -67,8 +68,8 @@ async function control(column) {
 
     var end = new Date().getTime()
 
-    // console.log(variations[0], `Time: ${end-start}ms`)
-
+    console.log(`Created `, `Time: ${end-start}ms`)
+    
     const written = await writeVariants(variations)
 
 
