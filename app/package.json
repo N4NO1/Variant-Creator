@@ -1,0 +1,12 @@
+{
+    "name": "variable-auto-creation",
+    "version": "0.0.0",
+    "author": {
+        "name":"Nathan"
+    },
+    "main":"main.js",
+    "dependencies": {
+        "csv-parser":"^2.3.5",
+        "csv-write-stream":"2.0.0"
+    }
+}
