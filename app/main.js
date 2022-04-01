@@ -27,27 +27,38 @@ function readCsv(filePath) {
                 console.error("header 'name' is missing but required")
                 stream.end()
             }
+            // if required headers exist create the headers for the file
             else {
+                //remove headers that aren't attributes
                 headers.splice(headers.indexOf("prefix"), 1)
                 headers.splice(headers.indexOf("price"), 1)
                 headers.splice(headers.indexOf("splitter"), 1)
                 headers.splice(headers.indexOf("name"), 1)
+                //add "attribute " as a prefix to the attribute names
                 headers = headers.map(n => "attribute " + n)
+                //create a array that contains the headers
+                //Add on the headers from the readStream headers array (which has has the prefix appended)
                 newHeaders = ["sku", "name", "salePrice", "taxRate", "is variable"].concat(headers)
+                //set the writeStream headers to the array created above
                 csvWriter.headers = newHeaders
+                //pipe the write stream to the csvWriter
                 csvWriter.pipe(fs.createWriteStream("output.csv"))
                 stream.resume()
             }
         })
         .on("data", (data) => {
+            //pause the stream so only 1 row is computed at a time
             stream.pause()
 
+            //pass the row data to the control function, on success resume the stream
             control(data).then(() => { stream.resume() })
+            // if control errors, catch it, and return the error to the console
                 .catch((e) => {
                     console.error("error", e)
                     stream.end()
                 })
         })
+        //on the end of the file, end the writeStream
         .on("end", () => {
             console.log("Done")
             csvWriter.end()
@@ -55,14 +66,17 @@ function readCsv(filePath) {
 }
 
 function checkHeaders(headers = []) {
+    //Check that headers exist.  If a header doesn't exist increment the variable by 1
     var requiredHeadersExist = 0
 
     requiredHeadersExist += (headers.includes("name") === true ? 0 : 1)
 
     if (requiredHeadersExist == 0) {
+        //if all headers exist, allow the script to continue
         return true
     }
     else {
+        //if headers are missing, stop the script
         return false
     }
 
@@ -70,34 +84,68 @@ function checkHeaders(headers = []) {
 
 function control(column) {
 
+    //set the start time
     var start = new Date().getTime()
 
+    /*
+    create an object from the column data in the format
+    {
+        name: "",
+        prefix:"",
+        splitter:"",
+        salePrice:"",
+        taxRate:"",
+        attributes:[{
+            name:"",
+            values:[]
+        },...],
+        possibilities:0
+    }
+    */
     const columnObject = createObject(column)
 
+    /*
+    create variations, and return them as an array of objects in this form:
+    [{
+        sku:"",
+        name:"",
+        salePrice:"",
+        taxRate:"",
 
+        ***list of attribute data
+        'attribute xyz':"",
+        'attribute abc':"",
+        ...
+    },...]
+    */
     const variations = generateVariants(columnObject)
 
+    //set the end time
     var end = new Date().getTime()
 
-    console.log(`Created `, `Time: ${end - start}ms`)
 
+    console.log(`Created ${columnObject.possibilities} in ${end - start}ms`)
+
+
+    //send the variations array to the write variants to the CSV
     const written = writeVariants(variations)
-
 
     return
 }
 
 function createObject(columnData) {
 
+    //initialise the object that is the template
     var variable = {
-        name: columnData.name,
-        prefix: columnData.prefix ?? "",
-        splitter: columnData.splitter ?? "",
+        name: ""+columnData.name,
+        prefix: ""+columnData.prefix ?? "",
+        splitter: ""+columnData.splitter ?? "",
         salePrice: columnData.price ?? 0,
-        taxRate: columnData.taxRate ?? "zero rated",
+        taxRate: ""+columnData.taxRate ?? "zero rated",
         attributes: [],
         possibilities: 1
     }
+    //delete columns that aren't attributes from the 
     delete columnData["name"]
     delete columnData["prefix"]
     delete columnData["splitter"]
