@@ -1,12 +1,20 @@
 {
     "name": "variable-auto-creation",
+    "description": "App to create variable items and variants from a CSV",
     "version": "0.0.0",
     "author": {
-        "name":"Nathan"
+        "name": "Nathan"
     },
-    "main":"main.js",
+    "main": "main.js",
     "dependencies": {
-        "csv-parser":"^2.3.5",
-        "csv-write-stream":"2.0.0"
+        "csv-parser": "^2.3.5",
+        "csv-write-stream": "2.0.0",
+        "electron": "^18.0.1"
+    },
+    "scripts": {
+        "start": "electron ."
+    },
+    "devDependencies": {
+        "electron": "^18.0.1"
     }
 }

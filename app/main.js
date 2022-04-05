@@ -1,22 +1,26 @@
+const { app, BrowserWindow } = require('electron')
+
 const fs = require("fs")
 const csv = require("csv-parser")
 const { resolve } = require("path")
 const csvWriteStream = require('csv-write-stream')
 const csvParser = require("csv-parser")
 var csvWriter = csvWriteStream()
+const path = require('path')
+
 
 //assigning the file path from CLI Arg 2, 
 //can be set by calling method by changing variable in readCsv function call
 const filePath = process.argv[2]
 
-readCsv(filePath)
+//readCsv(filePath)
 
 //takes a filepath and creates the readStream for the CSV file
 function readCsv(filePath) {
 
     //create the stream using the filePath parameter
     const stream = fs.createReadStream(filePath)
-    //map headers and convert them to lower case
+        //map headers and convert them to lower case
         .pipe(csv({ mapHeaders: ({ header, index }) => header.toLowerCase().trim() }))
         //on the header row, check that certain columns exist, and create headers for write stream
         .on("headers", (headers) => {
@@ -52,7 +56,7 @@ function readCsv(filePath) {
 
             //pass the row data to the control function, on success resume the stream
             control(data).then(() => { stream.resume() })
-            // if control errors, catch it, and return the error to the console
+                // if control errors, catch it, and return the error to the console
                 .catch((e) => {
                     console.error("error", e)
                     stream.end()
@@ -137,11 +141,11 @@ function createObject(columnData) {
 
     //initialise the object that is the template
     var variable = {
-        name: ""+columnData.name,
-        prefix: ""+columnData.prefix ?? "",
-        splitter: ""+columnData.splitter ?? "",
+        name: "" + columnData.name,
+        prefix: "" + columnData.prefix ?? "",
+        splitter: "" + columnData.splitter ?? "",
         salePrice: columnData.price ?? 0,
-        taxRate: ""+columnData.taxRate ?? "zero rated",
+        taxRate: "" + columnData.taxRate ?? "zero rated",
         attributes: [],
         possibilities: 1
     }
@@ -218,3 +222,28 @@ function writeVariants(variants = []) {
     })
     return true
 }
+
+
+/*
+* Electron control
+*/
+
+const createWindow = () => {
+    const win = new BrowserWindow({
+        width: 800,
+        height: 600
+    })
+
+    win.loadFile('index.html')
+}
+
+//electron handlers
+//when ready, create the electron window
+app.whenReady().then(() => {
+    createWindow()
+})
+
+//when electron is closed, stop the script
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit()
+})
