@@ -13,8 +13,5 @@
     },
     "scripts": {
         "start": "electron ."
-    },
-    "devDependencies": {
-        "electron": "^18.0.1"
     }
 }

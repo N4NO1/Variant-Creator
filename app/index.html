@@ -1,16 +1,66 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Hello World!</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <style type="text/css">
+    body {
+      margin: 0;
+      background: #fff;
+    }
+    .input {
+      margin: 4px 1px;
+    }
+    .submit{
+      margin: 10px 1px;
+    }
+    div.container {
+      display: flex;
+      justify-content: center;
+      flex-direction: row;
+      width: 100vw;
+      height: 100vh;
+      align-items: center;
+    }
+    div.center {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      width: 50%;
+      height: 50%;
+      align-items: center;
+      margin: 25vw;
+    }
+    textarea {
+      resize: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+  <div class=center>
+    <label for="readPath">Read Path:</label>
+    <input type="file" id="rofd" class="input">
+    <button type="button" id="generate" class="submit">Generate File</button>
+    <label id="output" class="input"></label>
+  </div>
+</div>
+</body>
+
 </html>
+<script>
+  const rofd = document.getElementById('rofd')
+  const generateButton = document.getElementById('generate')
+  const output = document.getElementById('output')
+
+  generateButton.addEventListener("click", async () => {
+    generateButton.disabled = true
+    console.log(rofd.value)
+    const result = await window.vacBridge.parseFile(rofd.value)
+    output.innerHTML = result
+    generateButton.disabled = false
+  })
+
+</script>
